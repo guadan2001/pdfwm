@@ -21,6 +21,7 @@
  */
 
 define('PDFWM_ROOT', dirname(__FILE__));
+require('libs/fpdf/fpdf.php');
 
 class pdfwm {
 	
@@ -117,10 +118,25 @@ class pdfwm {
 				exec($cmd);
 				break;
 			case 'jpg':
+				echo "jpg".$this->_src_file;
+				$pdf = new FPDF('P','mm','A4');
+				$pdf->AddPage();
+				$pdf->Image($this->_src_file,10,10,100);
+				$pdf->Output("test.pdf",'F');
 				break;
 			case 'gif':
+				echo "gif".$this->_src_file;
+				$pdf = new FPDF('P','mm','A4');
+				$pdf->AddPage();
+				$pdf->Image($this->_src_file,10,10,100);
+				$pdf->Output("test.pdf",'F');
 				break;
 			case 'png':
+				echo "png".$this->_src_file;
+				$pdf = new FPDF('P','mm','A4');
+				$pdf->AddPage();
+				$pdf->Image($this->_src_file,10,10,100);
+				$pdf->Output("test.pdf",'F');
 				break;
 			case 'psd':
 				break;
