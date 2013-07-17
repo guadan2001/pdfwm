@@ -9,8 +9,10 @@
  * 
  * 	TODO:
  * 	-----------------------------------------
- * 	*
- * 
+ * 	* mark()主流程实现，含进程控制 - sx
+ *  * docx转pdf实现 - gd
+ *  * jpg, png, gif转pdf实现 - gd
+ *  * 水印参数配置接口实现  - sx * 
  * 
  * 
  * 	BUGS:
@@ -109,7 +111,7 @@ class pdfwm {
 					throw new Exception('PDF file is existed, conversion failed. $pdf_file='.$this->_pdf_file);
 					return;
 				}
-				$flash_printer = PDFWM_ROOT.'\fp\FlashPrinter.exe';
+				$flash_printer = PDFWM_ROOT.'\tools\fp\FlashPrinter.exe';
 				$cmd = $flash_printer." $this->_src_file -o $this->_pdf_file";
 				echo $cmd.'<br>';
 				exec($cmd);
