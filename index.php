@@ -6,29 +6,35 @@
 * 
 * 	Latest Modification: 2013-7-17 9:52:34
 *
-*
-* 	TODO:
-* 	-----------------------------------------
-* 	*
-*
-*
-*
-* 	BUGS:
-*   -----------------------------------------
-*
 */
 
 	require './pdfwm/pdfwm.class.php';
 	
 	$here = dirname(__FILE__);
+	$out_dir = $here.'/docs/pdf';
 	
- 	$pdfwm_docx = new pdfwm($here.'/docs/src/docx-test.docx', $here.'/docs/pdf/docx-test.pdf', '');
+ 	$pdfwm_docx = new pdfwm($here.'/docs/src/docx-test.docx', $out_dir, '');
  	$pdfwm_docx->mark();
+ 	unset($pdfwm_docx);
 	
-//  	$pdfwm_doc = new pdfwm($here.'/pdfwm/docs/src/doc-test.doc', $here.'/pdfwm/docs/pdf/2.pdf', '');
-//  	$pdfwm_doc->mark();
+  	$pdfwm_doc = new pdfwm($here.'/docs/src/doc-test.doc', $out_dir, '');
+  	$pdfwm_doc->mark();
+  	unset($pdfwm_doc);
 	
-// 	$pdfwm_txt = new pdfwm($here.'/docs/src/txt-test.txt', $here.'/docs/pdf/txt-test.pdf', '');
-// 	$pdfwm_txt->mark();
+ 	$pdfwm_txt = new pdfwm($here.'/docs/src/txt-test.txt', $out_dir, '');
+ 	$pdfwm_txt->mark();
+ 	unset($pdfwm_txt);
+ 	
+ 	$pdfwm_jpg = new pdfwm($here.'/docs/src/jpg-test.jpg', $out_dir, '');
+ 	$pdfwm_jpg->mark();
+ 	unset($pdfwm_jpg);
+ 	
+ 	$pdfwm_gif = new pdfwm($here.'/docs/src/gif-test.gif', $out_dir, '');
+ 	$pdfwm_gif->mark();
+ 	unset($pdfwm_gif);
+ 	
+ 	$pdfwm_png = new pdfwm($here.'/docs/src/png-test.png', $out_dir, '');
+ 	$pdfwm_png->mark();
+ 	unset($pdfwm_png);
 	
 ?>

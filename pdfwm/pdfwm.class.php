@@ -21,22 +21,23 @@
  */
 
 define('PDFWM_ROOT', dirname(__FILE__));
-require('libs/fpdf/fpdf.php');
+
+require(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
 
 class pdfwm {
 	
 	var $_src_file;
-	var $_pdf_file;
+	var $_out_dir;
 	var $_wm_file;
 	
 	var $_wm_position;
 	var $_wm_rotation;
 	var $_wm_alaph;
 	
-	public function __construct($src_file, $pdf_file, $wm_file)
+	public function __construct($src_file, $out_dir, $wm_file)
 	{
 		$this->_src_file = $src_file;
-		$this->_pdf_file = $pdf_file;
+		$this->_out_dir = $out_dir;
 		$this->_wm_file = $wm_file;
 
 		$this->_wm_position = 9;
@@ -97,50 +98,50 @@ class pdfwm {
 			return;
 		}
 		
-		$path_parts = pathinfo($this->_src_file);
-		$file_ext = $path_parts['extension'];
+		$in_path = pathinfo($this->_src_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
 		
-		echo $file_ext.'<br>';
-		
-		switch($file_ext)
+		echo $out_file.'<br>';
+
+		switch($in_path['extension'])
 		{
 			case 'doc':
 			case 'docx':
 			case 'txt':
-				if(file_exists($this->_pdf_file))
+				if(file_exists($out_file))
 				{
 					throw new Exception('PDF file is existed, conversion failed. $pdf_file='.$this->_pdf_file);
 					return;
 				}
-				$flash_printer = PDFWM_ROOT.'\tools\fp\FlashPrinter.exe';
-				$cmd = $flash_printer." $this->_src_file -o $this->_pdf_file";
-				echo $cmd.'<br>';
+				$soffice = '"D:\Program Files\LibreOffice 4.0\program\soffice.exe"';
+				$cmd = $soffice." --headless -convert-to pdf -outdir ".$this->_out_dir." ".$this->_src_file;
+				sleep(3);
 				exec($cmd);
+				echo $cmd.'<br>';
 				break;
 			case 'jpg':
 				echo "jpg".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
-				$pdf->Output("test.pdf",'F');
+				$pdf->Output($out_file,'F');
 				break;
 			case 'gif':
 				echo "gif".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
-				$pdf->Output("test.pdf",'F');
+				$pdf->Output($out_file,'F');
 				break;
 			case 'png':
 				echo "png".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
-				$pdf->Output("test.pdf",'F');
-				break;
+				$pdf->Output($out_file,'F');
 			case 'psd':
 				break;
-						
 		}
 	}
 }
