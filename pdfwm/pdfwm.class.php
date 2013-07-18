@@ -22,6 +22,7 @@
 define('PDFWM_ROOT', dirname(__FILE__));
 
 require(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
+require(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
 
 class pdfwm {
 	
@@ -101,8 +102,8 @@ class pdfwm {
 		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
 		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
 		
-		echo $out_file.'<br>';
-
+		$in_path['extension'] = strtolower($in_path['extension']);
+		
 		switch($in_path['extension'])
 		{
 			case 'doc':
@@ -140,6 +141,23 @@ class pdfwm {
 				$pdf->Image($this->_src_file,10,10,100);
 				$pdf->Output($out_file,'F');
 			case 'psd':
+				$tmp_file = PDFWM_ROOT.'/'.rand(0, 1000).'.jpg';
+				imagejpeg(imagecreatefrompsd($this->_src_file), $tmp_file, 100);
+				sleep(2);
+				if(!file_exists($tmp_file))
+				{
+					throw new Exception('PSD conversion failed.');
+					return;
+				}
+				else
+				{
+					$pdf = new FPDF('P','mm','A4');
+					$pdf->AddPage();
+					$pdf->Image($tmp_file,10,10,100);
+					$pdf->Output($out_file,'F');
+					unlink($tmp_file);
+					unset($pdf);
+				}
 				break;
 		}
 	}
