@@ -9,11 +9,11 @@
 *
 *	example use:
 *	------------
-*	<?php
-*	include_once('classPhpPsdReader.php')
-*	header("Content-type: image/jpeg");
-*	print imagejpeg(imagecreatefrompsd('test.psd'));
-*	?>
+//	<?php
+//	include_once('classPhpPsdReader.php')
+//	header("Content-type: image/jpeg");
+//	print imagejpeg(imagecreatefrompsd('test.psd'));
+//	?>
 *
 *	More info, bugs or requests, contact info@kingsquare.nl
 *

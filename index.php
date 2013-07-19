@@ -29,7 +29,7 @@
 //  	$pdfwm_jpg->mark();
 //  	unset($pdfwm_jpg);
 
-	 	$pdfwm_long_jpg = new pdfwm($here.'/docs/src/long-jpg-test.jpg', $out_dir, '');
+	 	$pdfwm_long_jpg = new pdfwm($here.'/docs/src/long-jpg-test.jpg', $out_dir, $here.'/docs/src/wm.png');
  		$pdfwm_long_jpg->mark();
  		unset($pdfwm_long_jpg);
  	

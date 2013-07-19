@@ -22,13 +22,16 @@
 define('PDFWM_ROOT', dirname(__FILE__));
 
 require(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
-require(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
+//require(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
 
 class pdfwm {
 	
 	var $_src_file;
 	var $_out_dir;
 	var $_wm_file;
+	
+	var $_src_address;
+	var $_wm_address;
 	
 	var $_wm_position;
 	var $_wm_rotation;
@@ -48,6 +51,8 @@ class pdfwm {
 	public function mark()
 	{
 		$this->convert_to_pdf();
+		$this->get_watermark_pdf();
+		$this->do_watermark();
 	}
 	
 	/**
@@ -101,6 +106,8 @@ class pdfwm {
 		$in_path = pathinfo($this->_src_file);
 		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
 		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		
+		$this->_src_address = $out_file;
 		
 		$in_path['extension'] = strtolower($in_path['extension']);
 		
@@ -160,6 +167,33 @@ class pdfwm {
 				}
 				break;
 		}
+	}
+	
+	private function get_watermark_pdf()
+	{
+		$in_path = pathinfo($this->_wm_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		
+		$this->_wm_address = $out_file;
+		
+		$in_path['extension'] = strtolower($in_path['extension']);
+		$pdf = new FPDF('P','mm','A4');
+		$pdf->AddPage();
+		$pdf->Image($this->_wm_file,10,10,100);
+		$pdf->Output($out_file,'F');
+	}
+	
+	private function do_watermark()
+	{
+		$cmd = 'D:\xampp\htdocs\pdfwm\pdfwm\tools\PDFtk\pdftk.exe ';
+		echo $cmd;
+		echo PDFWM_ROOT;
+		echo $this->_src_address;
+		echo $this->_wm_address;
+		$cmd_other = $this->_src_address." stamp ".$this->_wm_address." output res123.pdf";
+		echo $cmd.$cmd_other;
+		system($cmd.$cmd_other);
 	}
 }
 	
