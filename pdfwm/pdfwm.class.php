@@ -6,23 +6,12 @@
  * 
  * 	Latest Modification: 2013-7-17 9:52:34
  * 
- * 
- * 	TODO:
- * 	-----------------------------------------
- * 	* mark()主流程实现，含进程控制 - sx
- *  * docx转pdf实现 - gd
- *  * jpg, png, gif转pdf实现 - gd
- *  * 水印参数配置接口实现  - sx * 
- * 
- * 	BUGS:
- *  ----------------------------------------- 
- * 
  */
 
 define('PDFWM_ROOT', dirname(__FILE__));
 
 require(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
-//require(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
+require(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
 
 class pdfwm {
 	
@@ -30,8 +19,8 @@ class pdfwm {
 	var $_out_dir;
 	var $_wm_file;
 	
-	var $_src_address;
-	var $_wm_address;
+	var $_src_pdf;
+	var $_wm_pdf;
 	
 	var $_wm_position;
 	var $_wm_rotation;
@@ -105,9 +94,9 @@ class pdfwm {
 		
 		$in_path = pathinfo($this->_src_file);
 		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
-		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		$out_file = PDFWM_ROOT.'/'.$in_filename_prefix.'.pdf';
 		
-		$this->_src_address = $out_file;
+		$this->_src_pdf = $out_file;
 		
 		$in_path['extension'] = strtolower($in_path['extension']);
 		
@@ -116,16 +105,14 @@ class pdfwm {
 			case 'doc':
 			case 'docx':
 			case 'txt':
-				if(file_exists($out_file))
-				{
-					throw new Exception('PDF file is existed, conversion failed. $pdf_file='.$this->_pdf_file);
-					return;
-				}
 				$soffice = '"D:\Program Files\LibreOffice 4.0\program\soffice.exe"';
-				$cmd = $soffice." --headless -convert-to pdf -outdir ".$this->_out_dir." ".$this->_src_file;
+				$cmd = $soffice." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
 				sleep(3);
 				exec($cmd);
 				echo $cmd.'<br>';
+				break;
+			case 'pdf':
+				copy($this->_src_file, $this->_src_pdf);
 				break;
 			case 'jpg':
 				echo "jpg".$this->_src_file;
@@ -133,6 +120,7 @@ class pdfwm {
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
 				$pdf->Output($out_file,'F');
+				unset($pdf);
 				break;
 			case 'gif':
 				echo "gif".$this->_src_file;
@@ -140,6 +128,7 @@ class pdfwm {
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
 				$pdf->Output($out_file,'F');
+				unset($pdf);
 				break;
 			case 'png':
 				echo "png".$this->_src_file;
@@ -147,6 +136,7 @@ class pdfwm {
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
 				$pdf->Output($out_file,'F');
+				unset($pdf);
 			case 'psd':
 				$tmp_file = PDFWM_ROOT.'/'.rand(0, 1000).'.jpg';
 				imagejpeg(imagecreatefrompsd($this->_src_file), $tmp_file, 100);
@@ -173,27 +163,52 @@ class pdfwm {
 	{
 		$in_path = pathinfo($this->_wm_file);
 		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
-		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		$out_file = PDFWM_ROOT.'/'.$in_filename_prefix.'.pdf';
 		
-		$this->_wm_address = $out_file;
+		$this->_wm_pdf = $out_file;
 		
-		$in_path['extension'] = strtolower($in_path['extension']);
-		$pdf = new FPDF('P','mm','A4');
-		$pdf->AddPage();
-		$pdf->Image($this->_wm_file,10,10,100);
-		$pdf->Output($out_file,'F');
+		if(!file_exists($this->_wm_pdf))
+		{
+			$in_path['extension'] = strtolower($in_path['extension']);
+			$pdf = new FPDF('P','mm','A4');
+			$pdf->AddPage();
+			$pdf->Image($this->_wm_file,10,10,100);
+			$pdf->Output($out_file,'F');
+		}
 	}
 	
 	private function do_watermark()
 	{
-		$cmd = 'D:\xampp\htdocs\pdfwm\pdfwm\tools\PDFtk\pdftk.exe ';
-		echo $cmd;
-		echo PDFWM_ROOT;
-		echo $this->_src_address;
-		echo $this->_wm_address;
-		$cmd_other = $this->_src_address." stamp ".$this->_wm_address." output res123.pdf";
-		echo $cmd.$cmd_other;
+		if(!file_exists($this->_src_pdf))
+		{
+			throw new Exception('Document conversion failed.');
+			return;
+		}
+		
+		if(!file_exists($this->_wm_pdf))
+		{
+			throw new Exception('Water Mark PDF is not existed.');
+			return;
+		}
+		
+		$in_path = pathinfo($this->_src_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		$in_path['extension'] = strtolower($in_path['extension']);
+		
+		if($in_path['extension'] == 'doc' || $in_path['extension'] == 'docx' || $in_path['extension'] == 'txt' || $in_path['extension'] == 'pdf')
+		{
+			$cmd_other = $this->_src_pdf." background ".$this->_wm_pdf." output ".$out_file;
+		}
+		else
+		{
+			$cmd_other = $this->_src_pdf." stamp ".$this->_wm_pdf." output ".$out_file;
+		}
+		
+		$cmd = PDFWM_ROOT.'\tools\PDFtk\pdftk.exe ';
+ 		echo $cmd.$cmd_other;
 		system($cmd.$cmd_other);
+		unlink($this->_src_pdf);
 	}
 }
 	
