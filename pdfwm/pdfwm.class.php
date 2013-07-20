@@ -10,8 +10,8 @@
 
 define('PDFWM_ROOT', dirname(__FILE__));
 
-require(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
-require(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
+require_once(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
+require_once(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
 
 class pdfwm {
 	
@@ -105,7 +105,7 @@ class pdfwm {
 			case 'doc':
 			case 'docx':
 			case 'txt':
-				$soffice = '"D:\Program Files\LibreOffice 4.0\program\soffice.exe"';
+				$soffice = '"E:\Program Files\LibreOffice 4.0\program\soffice.exe"';
 				$cmd = $soffice." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
 				sleep(3);
 				exec($cmd);
