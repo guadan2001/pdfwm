@@ -44,6 +44,21 @@ class pdfwm {
 		$this->do_watermark();
 	}
 	
+	public function pdfcat($Inpdf1,$Inpdf2)
+	{
+		$in_path = pathinfo($Inpdf1);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $this->_out_dir.'/cat_'.$in_filename_prefix.'.pdf';
+		$in_path['extension'] = strtolower($in_path['extension']);
+		
+		$cmd_other = $Inpdf1." ".$Inpdf2." cat output ".$out_file;
+		
+		$cmd = PDFWM_ROOT.'\tools\PDFtk\pdftk.exe ';
+ 		echo $cmd.$cmd_other;
+		system($cmd.$cmd_other);
+		unlink($this->_src_pdf);	
+	}
+	
 	/**
 	 * sets water mark's position: 1-9
 	 *
@@ -69,7 +84,7 @@ class pdfwm {
 	
 	/**
 	 * sets water mark's rotation angle: 0-360
-	 *
+	 
 	 * @param int $wm_rotation
 	 * @return null
 	 */
