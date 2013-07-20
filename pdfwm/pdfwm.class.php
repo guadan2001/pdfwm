@@ -54,9 +54,10 @@ class pdfwm {
 		$cmd_other = $Inpdf1." ".$Inpdf2." cat output ".$out_file;
 		
 		$cmd = PDFWM_ROOT.'\tools\PDFtk\pdftk.exe ';
- 		echo $cmd.$cmd_other;
+ 		//echo $cmd.$cmd_other;
 		system($cmd.$cmd_other);
-		unlink($this->_src_pdf);	
+		
+		return $out_file;
 	}
 	
 	/**
@@ -124,13 +125,13 @@ class pdfwm {
 				$cmd = $soffice." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
 				sleep(3);
 				exec($cmd);
-				echo $cmd.'<br>';
+				//echo $cmd.'<br>';
 				break;
 			case 'pdf':
 				copy($this->_src_file, $this->_src_pdf);
 				break;
 			case 'jpg':
-				echo "jpg".$this->_src_file;
+				//echo "jpg".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
@@ -138,7 +139,7 @@ class pdfwm {
 				unset($pdf);
 				break;
 			case 'gif':
-				echo "gif".$this->_src_file;
+				//echo "gif".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
@@ -146,12 +147,13 @@ class pdfwm {
 				unset($pdf);
 				break;
 			case 'png':
-				echo "png".$this->_src_file;
+				//echo "png".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
 				$pdf->Output($out_file,'F');
 				unset($pdf);
+				break;
 			case 'psd':
 				$tmp_file = PDFWM_ROOT.'/'.rand(0, 1000).'.jpg';
 				imagejpeg(imagecreatefrompsd($this->_src_file), $tmp_file, 100);
@@ -221,7 +223,7 @@ class pdfwm {
 		}
 		
 		$cmd = PDFWM_ROOT.'\tools\PDFtk\pdftk.exe ';
- 		echo $cmd.$cmd_other;
+ 		//echo $cmd.$cmd_other;
 		system($cmd.$cmd_other);
 		unlink($this->_src_pdf);
 	}
