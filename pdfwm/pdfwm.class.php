@@ -25,6 +25,10 @@ class pdfwm {
 	var $_wm_position;
 	var $_wm_rotation;
 	var $_wm_alaph;
+	var $_wm_mode;
+	
+	public static $WM_MODE_NORMAL = 0;
+	public static $WM_MODE_TILE = 1;	
 	
 	public function __construct($src_file, $out_dir, $wm_file)
 	{
@@ -32,6 +36,7 @@ class pdfwm {
 		$this->_out_dir = $out_dir;
 		$this->_wm_file = $wm_file;
 
+		$this->_wm_mode = pdfwm::$WM_MODE_NORMAL;
 		$this->_wm_position = 9;
 		$this->_wm_rotation = 0;
 		$this->_wm_alaph = 100;
@@ -60,6 +65,11 @@ class pdfwm {
 		return $out_file;
 	}
 	
+	public function set_wm_mode($mode = pdfwm::WM_MODE_NORMAL)
+	{
+		$this->_wm_mode = $mode;
+	}
+	
 	/**
 	 * sets water mark's position: 1-9
 	 *
@@ -68,7 +78,7 @@ class pdfwm {
 	 */
 	public function set_wm_position($wm_position = 9)
 	{
-		$this->_wm_position = $wm_position;
+		$this->_wm_position = $wm_position - 1;
 	}
 	
 	/**
@@ -121,7 +131,7 @@ class pdfwm {
 			case 'doc':
 			case 'docx':
 			case 'txt':
-				$soffice = '"E:\Program Files\LibreOffice 4.0\program\soffice.exe"';
+				$soffice = '"D:\Program Files\LibreOffice 4.0\program\soffice.exe"';
 				$cmd = $soffice." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
 				sleep(3);
 				exec($cmd);
@@ -182,15 +192,43 @@ class pdfwm {
 		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
 		$out_file = PDFWM_ROOT.'/'.$in_filename_prefix.'.pdf';
 		
-		$this->_wm_pdf = $out_file;
-		
-		if(!file_exists($this->_wm_pdf))
+		if(file_exists($out_file))
 		{
-			$in_path['extension'] = strtolower($in_path['extension']);
+			unlink($out_file);
+		}
+		
+		if($this->_wm_mode == pdfwm::$WM_MODE_NORMAL)
+		{
+			$x = 35 + 70 * ($this->_wm_position % 3);
+			$y = 49.5 + 99 * (intval($this->_wm_position / 3));
+			
+			list($PicWidth,$PicHeight) = getimagesize($this->_wm_file);
+			
 			$pdf = new FPDF('P','mm','A4');
 			$pdf->AddPage();
-			$pdf->Image($this->_wm_file,10,10,100);
+			$pdf->Image($this->_wm_file,$x-$PicWidth*25.4/192,$y-$PicHeight*25.4/192);
 			$pdf->Output($out_file,'F');
+			
+			unset($pdf);
+		}
+		else if($this->_wm_mode == pdfwm::$WM_MODE_TILE)
+		{
+			$pdf = new FPDF('P','mm','A4');
+			$pdf->AddPage();
+			$pdf->Image($this->_wm_file,0,0,210,297);
+			$pdf->Output($out_file,'F');
+			
+			unset($pdf);
+		}
+		
+		if(file_exists($out_file))
+		{
+			$this->_wm_pdf = $out_file;
+		}
+		else
+		{
+			throw new Exception('Water Mark conversion failed.');
+			return;
 		}
 	}
 	
@@ -222,46 +260,15 @@ class pdfwm {
 			$cmd_other = $this->_src_pdf." stamp ".$this->_wm_pdf." output ".$out_file;
 		}
 		
+		if(file_exists($out_file))
+		{
+			unlink($out_file);
+		}
+		
 		$cmd = PDFWM_ROOT.'\tools\PDFtk\pdftk.exe ';
- 		//echo $cmd.$cmd_other;
 		system($cmd.$cmd_other);
 		unlink($this->_src_pdf);
 	}
-	
-	public function fill_paper()
-	{
-		$in_path = pathinfo($this->_src_file);
-		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
-		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
-		
-		$pdf = new FPDF('P','mm','A4');
-		$pdf->AddPage();
-		$pdf->Image($this->_src_file,0,0,210,297);
-		$pdf->Output($out_file,'F');
-	}
-	
-	public function set_wm_position($wm_position = 0)
-	{
-		$in_path = pathinfo($this->_wm_file);
-		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
-		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
-		
-		$x = 35 + 70 * ($wm_position % 3);
-		$y = 49.5 + 99 * (intval($wm_position / 3));
-		
-		//echo $x."A".$y;
-	
-		list($PicWidth,$PicHeight) = getimagesize($this->_wm_file);
-		
-		//echo $PicWidth."B".$PicHeight;
-		
-		$pdf = new FPDF('P','mm','A4');
-		$pdf->AddPage();
-		$pdf->Image($this->_wm_file,$x-$PicWidth*25.4/192,$y-$PicHeight*25.4/192);
-		//echo $y-$PicHeight*25.4/192;
-		$pdf->Output($out_file,'F');
-	}
-	
 }
 
 

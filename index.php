@@ -13,9 +13,10 @@
 	$here = dirname(__FILE__);
 	$out_dir = $here.'/docs/pdf';
 	
-//  	$pdfwm_docx = new pdfwm($here.'/docs/src/docx-test.docx', $out_dir, '');
-//  	$pdfwm_docx->mark();
-//  	unset($pdfwm_docx);
+ 	$pdfwm_docx = new pdfwm($here.'/docs/src/docx-test.docx', $out_dir, $here.'/docs/src/wm.png');
+ 	$pdfwm_docx->set_wm_mode(pdfwm::$WM_MODE_TILE);
+ 	$pdfwm_docx->mark();
+ 	unset($pdfwm_docx);
 	
 //   	$pdfwm_doc = new pdfwm($here.'/docs/src/doc-test.doc', $out_dir, $here.'/docs/src/wm.png');
 //   	$pdfwm_doc->mark();
@@ -25,9 +26,10 @@
 //  	$pdfwm_txt->mark();
 //  	unset($pdfwm_txt);
 
-	$pdfwm_pdf = new pdfwm($here.'/docs/src/pdf-test.pdf', $out_dir, $here.'/docs/src/wm.png');
-	$pdfwm_pdf->mark();
-	unset($pdfwm_pdf);
+// 	$pdfwm_pdf = new pdfwm($here.'/docs/src/pdf-test.pdf', $out_dir, $here.'/docs/src/wm.png');
+// 	$pdfwm_pdf->set_wm_mode(pdfwm::$WM_MODE_NORMAL);
+// 	$pdfwm_pdf->mark();
+// 	unset($pdfwm_pdf);
  	
 //  	$pdfwm_jpg = new pdfwm($here.'/docs/src/jpg-test.jpg', $out_dir, '');
 //  	$pdfwm_jpg->mark();
