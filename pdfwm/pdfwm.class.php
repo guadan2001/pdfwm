@@ -215,7 +215,17 @@ class pdfwm {
 		{
 			$pdf = new FPDF('P','mm','A4');
 			$pdf->AddPage();
-			$pdf->Image($this->_wm_file,0,0,210,297);
+			list($PicWidth,$PicHeight) = getimagesize($this->_wm_file);
+			$NumImageX =intval(210 / ($PicWidth * 25.4 / 96)) + 1;
+			$NumImageY =intval(297 / ($PicHeight * 25.4 / 96)) + 1;
+			for($i = 0 ; $i < $NumImageX ; $i++)
+			{
+				for($j = 0 ; $j < $NumImageY ; $j++)
+				{
+					$pdf->Image($this->_wm_file,$i * $PicWidth * 25.4 / 96,$j * $PicHeight * 25.4 / 96);
+				}
+			}
+			//$pdf->Image($this->_wm_file,0,0,210,297);
 			$pdf->Output($out_file,'F');
 			
 			unset($pdf);
