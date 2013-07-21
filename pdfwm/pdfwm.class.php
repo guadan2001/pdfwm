@@ -227,6 +227,41 @@ class pdfwm {
 		system($cmd.$cmd_other);
 		unlink($this->_src_pdf);
 	}
+	
+	public function fill_paper()
+	{
+		$in_path = pathinfo($this->_src_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		
+		$pdf = new FPDF('P','mm','A4');
+		$pdf->AddPage();
+		$pdf->Image($this->_src_file,0,0,210,297);
+		$pdf->Output($out_file,'F');
+	}
+	
+	public function set_wm_position($wm_position = 0)
+	{
+		$in_path = pathinfo($this->_wm_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $this->_out_dir.'/'.$in_filename_prefix.'.pdf';
+		
+		$x = 35 + 70 * ($wm_position % 3);
+		$y = 49.5 + 99 * (intval($wm_position / 3));
+		
+		//echo $x."A".$y;
+	
+		list($PicWidth,$PicHeight) = getimagesize($this->_wm_file);
+		
+		//echo $PicWidth."B".$PicHeight;
+		
+		$pdf = new FPDF('P','mm','A4');
+		$pdf->AddPage();
+		$pdf->Image($this->_wm_file,$x-$PicWidth*25.4/192,$y-$PicHeight*25.4/192);
+		//echo $y-$PicHeight*25.4/192;
+		$pdf->Output($out_file,'F');
+	}
+	
 }
 
 
