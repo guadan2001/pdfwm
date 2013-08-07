@@ -15,6 +15,7 @@
 	
  	$pdfwm_docx = new pdfwm($here.'/docs/src/docx-test.docx', $out_dir, $here.'/docs/src/wm.png');
  	$pdfwm_docx->set_wm_mode(pdfwm::$WM_MODE_TILE);
+  	//$pdfwm_docx->set_wm_position(9);  	
  	$pdfwm_docx->mark();
  	unset($pdfwm_docx);
 	
@@ -27,11 +28,13 @@
 //  	unset($pdfwm_txt);
 
 // 	$pdfwm_pdf = new pdfwm($here.'/docs/src/pdf-test.pdf', $out_dir, $here.'/docs/src/wm.png');
-// 	$pdfwm_pdf->set_wm_mode(pdfwm::$WM_MODE_NORMAL);
+// 	$pdfwm_pdf->set_wm_mode(pdfwm::$WM_MODE_TILE);
 // 	$pdfwm_pdf->mark();
 // 	unset($pdfwm_pdf);
  	
-//  	$pdfwm_jpg = new pdfwm($here.'/docs/src/jpg-test.jpg', $out_dir, '');
+//  	$pdfwm_jpg = new pdfwm($here.'/docs/src/jpg-test.jpg', $out_dir, $here.'/docs/src/wm.png');
+//  	$pdfwm_jpg->set_wm_mode(pdfwm::$WM_MODE_NORMAL);
+//  	$pdfwm_jpg->set_wm_position(3);  	
 //  	$pdfwm_jpg->mark();
 //  	unset($pdfwm_jpg);
 

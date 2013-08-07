@@ -131,7 +131,7 @@ class pdfwm {
 			case 'doc':
 			case 'docx':
 			case 'txt':
-				$soffice = '"E:\Program Files\LibreOffice 4.0\program\soffice.exe"';
+				$soffice = '"D:\Program Files\LibreOffice 4.0\program\soffice.exe"';
 				$cmd = $soffice." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
 				sleep(3);
 				exec($cmd);
