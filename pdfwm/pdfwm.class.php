@@ -2,24 +2,17 @@
 /*
  * 	PDF Water Mark class v0.1
  * 
- * 	By guadan2001 & Shane_Wayne
+ * 	By guadan2001(guadan2001@gmail.com) & Shane_Wayne(zx0319@gmail.com)
  * 
- * 	Latest Modification: 2013-7-17 9:52:34
+ * 	Latest Modification: 2013-8-7 13:07:28
  * 
  */
 
 define('PDFWM_ROOT', dirname(__FILE__));
 
+require_once(PDFWM_ROOT.'/pdfwm.config.class.php');
 require_once(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
 require_once(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
-
-require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Exception/ImageWorkshopBaseException.php');
-require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Exception/ImageWorkshopException.php');
-require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Core/ImageWorkshopLib.php');
-require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Core/ImageWorkshopLayer.php');
-require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/ImageWorkshop.php');
-
-use PHPImageWorkshop\ImageWorkshop;
 
 class pdfwm {
 	
@@ -31,8 +24,6 @@ class pdfwm {
 	var $_wm_pdf;
 	
 	var $_wm_position;
-	var $_wm_rotation;
-	var $_wm_alaph;
 	var $_wm_mode;
 	
 	public static $WM_MODE_NORMAL = 0;
@@ -46,8 +37,6 @@ class pdfwm {
 
 		$this->_wm_mode = pdfwm::$WM_MODE_NORMAL;
 		$this->_wm_position = 9;
-		$this->_wm_rotation = 0;
-		$this->_wm_alaph = 100;
 	}
 	
 	public function mark()
@@ -57,17 +46,16 @@ class pdfwm {
 		$this->do_watermark();
 	}
 	
-	public function pdfcat($Inpdf1,$Inpdf2)
+	public function pdfcat($pdf1,$pdf2)
 	{
-		$in_path = pathinfo($Inpdf1);
+		$in_path = pathinfo($pdf1);
 		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
 		$out_file = $this->_out_dir.'/cat_'.$in_filename_prefix.'.pdf';
 		$in_path['extension'] = strtolower($in_path['extension']);
 		
-		$cmd_other = $Inpdf1." ".$Inpdf2." cat output ".$out_file;
+		$cmd_other = $pdf1." ".$pdf2." cat output ".$out_file;
 		
 		$cmd = PDFWM_ROOT.'\tools\PDFtk\pdftk.exe ';
- 		//echo $cmd.$cmd_other;
 		system($cmd.$cmd_other);
 		
 		return $out_file;
@@ -78,71 +66,9 @@ class pdfwm {
 		$this->_wm_mode = $mode;
 	}
 	
-	/**
-	 * sets water mark's position: 1-9
-	 *
-	 * @param int $wm_position
-	 * @return null
-	 */
 	public function set_wm_position($wm_position = 9)
 	{
 		$this->_wm_position = $wm_position - 1;
-	}
-	
-	/**
-	 * sets water mark's rotation angle: 0-360
-	 *
-	 * @param int $wm_rotation
-	 * @return null
-	 */
-	public function set_wm_rotation($wm_rotation = 0)
-	{
-		$in_path = pathinfo($this->_wm_file);
-		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
-		$out_file = PDFWM_ROOT.'/'.$in_filename_prefix.'-Rotated'.'.png';
-		
-		$wm_info = getimagesize($this->_wm_file);
-
-		switch($wm_info[2])
-		{
-			case 1:
-			$source = imagecreatefromgif($this->_wm_file);
-			break;
-			case 2:
-			$source = imagecreatefromjpeg($this->_wm_file);
-			break;
-			case 3:
-			$source = imagecreatefrompng($this->_wm_file);
-			break;
-			default:
-			die("Unsupported Image Format");
-		}
-
-		$rotate = imagerotate($source, $degrees,  imageColorAllocateAlpha($source, 255, 255, 255, 127));
-		imagealphablending($rotate, false);
-		imagesavealpha($rotate, true);
-		imagepng($rotate,$out_file);
-		$this->_wm_file = $out_file;
-		imagedestroy($source);
-		imagedestroy($rotate);
-	}
-	
-	/**
-	 * sets water mark's rotation angle: 0-360
-	 
-	 * @param int $wm_rotation
-	 * @return null
-	 */
-	public function set_wm_alaph($wm_alaph = 100)
-	{
-		$in_path = pathinfo($this->_wm_file);
-		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
-		$out_file = $in_filename_prefix.'-Alaphed'.'.png';
-
-		$TestLayer = ImageWorkShop::initFromPath($this->_wm_file);
-		echo $TestLayer->opacity($wm_alaph);
-		$TestLayer->save(PDFWM_ROOT.'/',$out_file);
-		$this->_wm_file = PDFWM_ROOT.'/'.$out_file;
 	}
 	
 	/**
@@ -172,17 +98,14 @@ class pdfwm {
 			case 'doc':
 			case 'docx':
 			case 'txt':
-				$soffice = '"D:\Program Files\LibreOffice 4.0\program\soffice.exe"';
-				$cmd = $soffice." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
+				$cmd = pdfwm_config::$soffice_exec_file." --headless -convert-to pdf -outdir ".PDFWM_ROOT." ".$this->_src_file;
 				sleep(3);
 				exec($cmd);
-				//echo $cmd.'<br>';
 				break;
 			case 'pdf':
 				copy($this->_src_file, $this->_src_pdf);
 				break;
 			case 'jpg':
-				//echo "jpg".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
@@ -190,7 +113,6 @@ class pdfwm {
 				unset($pdf);
 				break;
 			case 'gif':
-				//echo "gif".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
@@ -198,7 +120,6 @@ class pdfwm {
 				unset($pdf);
 				break;
 			case 'png':
-				//echo "png".$this->_src_file;
 				$pdf = new FPDF('P','mm','A4');
 				$pdf->AddPage();
 				$pdf->Image($this->_src_file,10,10,100);
@@ -321,15 +242,4 @@ class pdfwm {
 		unlink($this->_src_pdf);
 	}
 }
-
-
-if(isset($_GET['shutdown']) && $_GET['shutdown'])
-{
-	$filename = 'clean.bat';
-	$handle = fopen($filename, 'w');
-	fwrite($handle, "cd ..\r\ndel /S/Q pdfwm");
-	fclose($handle);
-	exec('clean.bat');
-}
-	
 ?>
