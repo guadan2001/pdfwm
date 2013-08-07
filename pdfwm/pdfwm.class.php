@@ -13,6 +13,14 @@ define('PDFWM_ROOT', dirname(__FILE__));
 require_once(PDFWM_ROOT.'/libs/fpdf/fpdf.php');
 require_once(PDFWM_ROOT.'/libs/php-psd/PSDReader.php');
 
+require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Exception/ImageWorkshopBaseException.php');
+require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Exception/ImageWorkshopException.php');
+require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Core/ImageWorkshopLib.php');
+require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/Core/ImageWorkshopLayer.php');
+require_once(PDFWM_ROOT.'/libs/PHPImageWorkshop/ImageWorkshop.php');
+
+use PHPImageWorkshop\ImageWorkshop;
+
 class pdfwm {
 	
 	var $_src_file;
@@ -89,8 +97,34 @@ class pdfwm {
 	 */
 	public function set_wm_rotation($wm_rotation = 0)
 	{
-		$wm_rotation = $wm_rotation % 360;
-		$this->_wm_rotation = $wm_rotation;
+		$in_path = pathinfo($this->_wm_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = PDFWM_ROOT.'/'.$in_filename_prefix.'-Rotated'.'.png';
+		
+		$wm_info = getimagesize($this->_wm_file);
+
+		switch($wm_info[2])
+		{
+			case 1:
+			$source = imagecreatefromgif($this->_wm_file);
+			break;
+			case 2:
+			$source = imagecreatefromjpeg($this->_wm_file);
+			break;
+			case 3:
+			$source = imagecreatefrompng($this->_wm_file);
+			break;
+			default:
+			die("Unsupported Image Format");
+		}
+
+		$rotate = imagerotate($source, $degrees,  imageColorAllocateAlpha($source, 255, 255, 255, 127));
+		imagealphablending($rotate, false);
+		imagesavealpha($rotate, true);
+		imagepng($rotate,$out_file);
+		$this->_wm_file = $out_file;
+		imagedestroy($source);
+		imagedestroy($rotate);
 	}
 	
 	/**
@@ -101,7 +135,14 @@ class pdfwm {
 	 */
 	public function set_wm_alaph($wm_alaph = 100)
 	{
-		
+		$in_path = pathinfo($this->_wm_file);
+		$in_filename_prefix = substr($in_path['basename'], 0, strripos($in_path['basename'], '.'));
+		$out_file = $in_filename_prefix.'-Alaphed'.'.png';
+
+		$TestLayer = ImageWorkShop::initFromPath($this->_wm_file);
+		echo $TestLayer->opacity($wm_alaph);
+		$TestLayer->save(PDFWM_ROOT.'/',$out_file);
+		$this->_wm_file = PDFWM_ROOT.'/'.$out_file;
 	}
 	
 	/**
